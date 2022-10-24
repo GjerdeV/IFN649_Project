@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="de">
+        <head>
+        <style>
+        #container
+{
+  width:50px;
+  height:300px;
+  line-height:300px;
+  margin-left:10px;
+  border:2px solid black;
+}
+
+        </style>
+
+                <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js"></script>
+        <script >
+var hostname = "3.27.28.141";
+var port = 9001;
+var clientId = "WebSocket";
+clientId += new Date().getUTCMilliseconds();;
+var topic = "ifn649";
+
+mqttClient = new Paho.MQTT.Client(hostname, port, clientId);
+mqttClient.onMessageArrived = MessageArrived;
+mqttClient.onConnectionLost = ConnectionLost;
+Connect();
+
+/*Initiates a connection to the MQTT broker*/
+function Connect(){
+        mqttClient.connect({
+        onSuccess: Connected,
+        onFailure: ConnectionFailed,
+        keepAliveInterval: 10,
+});
+}
+
+/*Callback for successful MQTT connection */
+function Connected() {
+        console.log("Connected to broker");
+        mqttClient.subscribe(topic);
+}
+
+/*Callback for failed connection*/
+function ConnectionFailed(res) {
+        console.log("Connect failed:" + res.errorMessage);
+}
+
+/*Callback for lost connection*/
+function ConnectionLost(res) {
+        if (res.errorCode !== 0) {
+                console.log("Connection lost:" + res.errorMessage);
+                Connect();
+        }
+}
+
+/*Callback for incoming message processing */
+function MessageArrived(message) {
+        console.log(message.destinationName +" : " + message.payloadString);
+        console.log(message.payloadString);
+        document.getElementById('Data').innerHTML = message.payloadString;
+        if (message.payloadString == "HOT") {
+                document.body.style.backgroundColor = "red"
+        }
+        if (message.payloadString == "MODERATE") {
+                document.body.style.backgroundColor = "yellow"
+        }
+        if (message.payloadString == "COLD") {
+                document.body.style.backgroundColor = "blue"
+        }
+}
+                </script>
+
+                <meta charset="utf-8">
+                <title>Websocket</title>
+        </head>
+
+        <body id="body" style="background-color: black;">
+<div style="  margin: auto;
+width: 50%;
+padding: 10px;
+text-align: center;
+color: lightgray;"  id="Data"></div>
+<div style="  margin: auto;
+width: 50%;
+
+padding: 10px;text-align: center;
+color: lightgray;">
+
+          <button type="button" id="ALARM_OFF">ALARM OFF</button>
+</div>
+        </body>
+
+<script>
+
+        var OFFBUTTON = document.getElementById('ALARM_OFF')
+        OFFBUTTON.addEventListener('click', function() {
+                console.log('ALARM_OFF BUTTON CLICKED');
+                var hostname = "3.27.28.141";
+                var port = 9001;
+                var clientId = "WebSocket";
+                clientId += new Date().getUTCMilliseconds();;
+                var topic = "ifn649";
+                message = new Paho.MQTT.Message('ALARM_OFF');
+                message.destinationName='ifn649';
+                mqttClient.send(message);
+         });
+
+</script>
+</html>
