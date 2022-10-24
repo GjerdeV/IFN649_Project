@@ -20,7 +20,7 @@ while True:
     second = dtime.second
     print('Second:', second)
 
-    if watch == "10:52" and second < 30:
+    if watch == "08:00" and second < 4:
         ser1.write(str.encode("ALARM_ON"))
         publish.single("ifn649", "ALARM_RINGING", hostname="3.27.28.141")
         
